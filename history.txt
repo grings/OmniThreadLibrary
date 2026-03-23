@@ -1,3 +1,8 @@
+3.07.12: <<unreleased>>
+
+- Bug fixes:
+  - Fixed bad 64-bit pointer casts in OtlTaskControl.
+
 3.07.11: 2025-10-22
 
 - New features:
