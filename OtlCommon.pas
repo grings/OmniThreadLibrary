@@ -530,7 +530,7 @@ type
     property OwnsObject: boolean read IsOwnedObject write SetOwnsObject;
   {$IFDEF MSWINDOWS}
     function  CastToAnsiStringDef(const defValue: AnsiString): AnsiString; inline;
-    function  CastToWideStringDef(const defValue: WideString): WideString; inline;
+    function  CastToWideStringDef(defValue: WideString): WideString; inline;
     function  IsAnsiString: boolean; inline;
     function  IsWideString: boolean; inline;
     function  TryCastToAnsiString(var value: AnsiString): boolean;
@@ -1621,6 +1621,13 @@ begin
   ovcCount := 0;
 end; { TOmniValueContainer.Create }
 
+procedure TOmniValueContainer.Clear; //inline
+begin
+  SetLength(ovcNames, 0);
+  SetLength(ovcValues, 0);
+  ovcCount := 0;
+end; { TOmniValueContainer.Clear }
+
 procedure TOmniValueContainer.Add(const paramValue: TOmniValue; const paramName: string);
 var
   idxParam: integer;
@@ -1644,13 +1651,6 @@ begin
     Grow;
   ovcNames[Result] := paramName;
 end; { TOmniValueContainer.AddParam }
-
-procedure TOmniValueContainer.Clear; //inline
-begin
-  SetLength(ovcNames, 0);
-  SetLength(ovcValues, 0);
-  ovcCount := 0;
-end; { TOmniValueContainer.Clear }
 
 procedure TOmniValueContainer.Assign(const parameters: array of TOmniValue);
 var
@@ -2938,7 +2938,7 @@ begin
     raise Exception.Create('TOmniValue cannot be converted to WideString');
 end; { TOmniValue.CastToWideString }
 
-function TOmniValue.CastToWideStringDef(const defValue: WideString): WideString;
+function TOmniValue.CastToWideStringDef(defValue: WideString): WideString;
 begin
   if not TryCastToWideString(Result) then
     Result := defValue;
@@ -3042,10 +3042,12 @@ function TOmniValue.LogValue(depth: integer): string;
 const
   CBoolStr: array [boolean] of string = ('F', 'T');
 var
-  arr: TOmniValueContainer;
-  i: integer;
+  arr     : TOmniValueContainer;
+  i       : integer;
   maxItems: integer;
-  obj: TObject;
+{$IFDEF OTL_CanCatInterfaceToObject}
+  obj     : TObject;
+{$ENDIF OTL_CanCatInterfaceToObject}
 begin
   try
     case DataType of
@@ -3072,12 +3074,16 @@ begin
       ovtString:      Result := '[S]' + AsString;
       ovtInterface:   begin
         if assigned(ovIntf) then begin
+          {$IFDEF OTL_CanCatInterfaceToObject}
           try
             obj := ovIntf as TObject;
             Result := '[I]' + obj.ClassName;
           except
             Result := '[I]assigned';
           end;
+          {$ELSE ~OTL_CanCatInterfaceToObject}
+            Result := '[I]assigned';
+          {$ENDIF ~OTL_CanCatInterfaceToObject}
         end else
           Result := '[I]nil';
       end;

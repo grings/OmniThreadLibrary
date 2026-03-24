@@ -470,7 +470,7 @@ type
     /// <summary>
     ///   Run the task code from within in the calling thread
     /// </summary>
-    function  DirectExecute:IOmniTaskControl;
+    function  DirectExecute: IOmniTaskControl;
     function  Enforced(forceExecution: boolean = true): IOmniTaskControl;
     function  GetFatalException: Exception;
     function  GetParam: TOmniValueContainer;
@@ -2555,7 +2555,7 @@ procedure TOmniTaskExecutor.GetMethodAddrAndSignature(const methodName: string; 
 const
   CShortLen = SizeOf(ShortString) - 1;
 var
-  headerEnd       : cardinal;
+  headerEnd       : NativeUInt;
   methodInfoHeader: PMethodInfoHeader;
   paramNum        : integer;
   params          : PParamInfo;
@@ -2618,14 +2618,14 @@ begin { TOmniTaskExecutor.GetMethodAddrAndSignature }
                               [WorkerIntf.Implementor.ClassName, methodName]);
   // only limited subset of method signatures is allowed:
   // (Self), (Self, const TOmniValue), (Self, var TObject)
-  headerEnd := cardinal(methodInfoHeader) + methodInfoHeader^.Len;
-  returnInfo := PReturnInfo(cardinal(methodInfoHeader) + SizeOf(methodInfoHeader^)
+  headerEnd := NativeUInt(methodInfoHeader) + methodInfoHeader^.Len;
+  returnInfo := PReturnInfo(NativeUInt(methodInfoHeader) + SizeOf(methodInfoHeader^)
             - CShortLen + Length(methodInfoHeader^.Name));
-  params := PParamInfo(cardinal(returnInfo) + SizeOf(TReturnInfo));
+  params := PParamInfo(NativeUInt(returnInfo) + SizeOf(TReturnInfo));
   paramNum := 0;
   methodSignature := itUnknown;
   // Loop over the parameters
-  while (cardinal(params) < headerEnd) do begin
+  while (NativeUInt(params) < headerEnd) do begin
     {$IFDEF OTL_KnowsParamCount}
     if paramNum >= returnInfo.ParamCount then
       break; //while
