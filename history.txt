@@ -1,4 +1,4 @@
-3.08: <<unreleased>>
+3.08: 2026-04-08
 
 - New features:
   - Implemented TLightweightMREWEx extension to TLightweightMREW (Delphi 11+ only).
